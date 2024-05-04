@@ -23,6 +23,8 @@ frame_memory = deque()
 recording = False
 video_frame_counter = 0
 
+log_dir = os.getenv('SECURITY_CAMERA_LOG_DIR') if os.getenv('SECURITY_CAMERA_LOG_DIR').endswith('/') else os.getenv('SECURITY_CAMERA_LOG_DIR') + '/'
+
 while(True):
 	ret1, builtinFrame = builtin.read()
 	ret2, usbFrame = usb.read()
@@ -48,7 +50,7 @@ while(True):
 			if(not recording) :
 				now = datetime.now()
 				timestamp = now.strftime("%Y-%m-%d-%H-%M-%S")
-				videoName = os.getenv('SECURITY_CAMERA_LOG_DIR') + timestamp + '.avi'
+				videoName = log_dir + timestamp + '.avi'
 				print(videoName)
 				out = cv2.VideoWriter(videoName, fourcc, 7.0, size)
 								
@@ -71,12 +73,12 @@ while(True):
 	if((datetime.now() - timer_start) > image_save_interval): 
 		timer_start = datetime.now()
 		timestamp = timer_start.strftime("%Y-%m-%d-%H-%M-%S")
-		cv2.imwrite(os.getenv('SECURITY_CAMERA_LOG_DIR') + timestamp + ".png", combined)
+		cv2.imwrite(log_dir + timestamp + ".png", combined)
 
 	if cv2.waitKey(1) & 0xff == ord('q'):
 		timer_start = datetime.now()
 		timestamp = timer_start.strftime("%Y-%m-%d-%H-%M-%S")
-		cv2.imwrite(os.getenv('SECURITY_CAMERA_LOG_DIR') + timestamp + ".png", combined)
+		cv2.imwrite(log_dir + timestamp + ".png", combined)
 		break
 
 builtin.release()
