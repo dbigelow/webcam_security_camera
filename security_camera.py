@@ -24,6 +24,7 @@ recording = False
 video_frame_counter = 0
 
 log_dir = os.getenv('SECURITY_CAMERA_LOG_DIR') if os.getenv('SECURITY_CAMERA_LOG_DIR').endswith('/') else os.getenv('SECURITY_CAMERA_LOG_DIR') + '/'
+log_dir = os.path.expanduser(os.path.expandvars(log_dir))
 
 while(True):
 	ret1, builtinFrame = builtin.read()
@@ -51,7 +52,6 @@ while(True):
 				now = datetime.now()
 				timestamp = now.strftime("%Y-%m-%d-%H-%M-%S")
 				videoName = log_dir + timestamp + '.avi'
-				print(videoName)
 				out = cv2.VideoWriter(videoName, fourcc, 7.0, size)
 								
 				out.write(old_frame)
