@@ -17,8 +17,8 @@ pip install opencv-python python-dotenv numpy np
 ```
 2. Set up your environment (you can specify SECURITY_CAMERA_LOG_DIR in a .env file if you want something more persistent than exporting the environment variable).
 ```
-mkdir /home/username/security_camera_logs
-export SECURITY_CAMERA_LOG_DIR=/home/username/security_camera_logs/
+mkdir ~/security_camera_logs
+export SECURITY_CAMERA_LOG_DIR=~/security_camera_logs
 ```
 3. Run the program
 ```
