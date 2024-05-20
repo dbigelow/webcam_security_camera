@@ -5,6 +5,7 @@ from collections import deque
 import os
 from configparser import ConfigParser
 from pathlib import Path
+from functools import reduce
 
 def load_config(config_file_name):
 	config = ConfigParser()
@@ -16,8 +17,7 @@ def camera_loader():
 	camera_indexes = sorted([int(x.name[5:]) for x in p.iterdir() if 'video' in x.name])
 	for i in camera_indexes:
 		cap = cv2.VideoCapture(i)
-		print(cap)
-		if cap.read()[0]:
+		if cap.isOpened():
 			yield cap
 
 def detect_movement(initial_image, next_image):
@@ -36,21 +36,20 @@ config = load_config('security_camera.cfg')
 
 
 camera_loader = camera_loader()
-builtin = next(camera_loader)
-print(builtin)
-usb = next(camera_loader)
-print(usb)
+cameras = [camera for camera in camera_loader]
+if len(cameras) < 1:
+	raise RuntimeError("No available webcams") 
 
-width = int(builtin.get(cv2.CAP_PROP_FRAME_WIDTH) * 2)
-height = int(usb.get(cv2.CAP_PROP_FRAME_HEIGHT))
-size = (width, height)
+total_width = reduce(lambda width1, width2: width1 + width2, [int(camera.get(cv2.CAP_PROP_FRAME_WIDTH)) for camera in cameras])
+height = int(cameras[0].get(cv2.CAP_PROP_FRAME_HEIGHT))
+size = (total_width, height)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
-out = None
+video_writer = None
 
 image_save_interval = timedelta(minutes=int(config['Logging']['save_interval']))
 timer_start = datetime.now()
-frame_memory = deque()
+frame_buffer = deque()
 recording = False
 video_frame_counter = 0
 
@@ -62,14 +61,13 @@ Path(log_dir).mkdir(parents=True, exist_ok=True)
 kernel = np.ones((9, 9), np.uint8)
 
 while(True):
-	_, builtinFrame = builtin.read()
-	_, usbFrame = usb.read()
-	combined = np.concatenate((builtinFrame, usbFrame), axis=1)
-	frame_memory.append(combined)
+	frames = [camera.read()[1] for camera in cameras]
+	combined = np.concatenate(frames, axis=1)
+	frame_buffer.append(combined)
 
-	if(len(frame_memory) > 5):
+	if(len(frame_buffer) > 5):
 		
-		old_frame = frame_memory.popleft()
+		old_frame = frame_buffer.popleft()
 		movement_detected, diff_frame = detect_movement(old_frame, combined)
 		
 		cv2.imshow('webcam feed', combined)
@@ -113,6 +111,6 @@ while(True):
 		cv2.imwrite(log_dir + timestamp + ".png", combined)
 		break
 
-builtin.release()
-usb.release()
+for camera in cameras:
+	camera.release()
 cv2.destroyAllWindows()
