@@ -1,0 +1,8 @@
+name: opencv
+channels:
+  - default
+dependencies:
+  - python=3.11
+  - opencv
+  - numpy
+  - spyder
