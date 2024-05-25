@@ -2,3 +2,4 @@
 *.avi
 .env
 *.swp
+*__pycache__*
