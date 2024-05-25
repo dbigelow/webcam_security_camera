@@ -1,22 +1,23 @@
 # Webcam-based Security Camera
 A basic security camera program using cheap webcams and opencv. Currently this camera will:
-1. Save an image to the directory specified in the SECURITY_CAMERA_LOG_DIR environment variable once every X minutes, where X is defined by the environment variable IMAGE_SAVE_INTERVAL.
-2. Save an image to SECURITY_CAMERA_LOG_DIR when the program ends.
-3. Do very basic motion detection, and save a video to SECURITY_CAMERA_LOG_DIR whenever motion is detected.
+1. Save an image to a configured directory every X minutes
+  - Save directory is specified in security_camera.cfg under [Logging].log_dir
+  - Number of minutes between saves is specified in security_camera.cfg under [Logging].save_interval.
+2. Save an image to the log dir when the program ends.
+3. Do very basic motion detection, and save a video to the log dir whenever motion is detected.
 
 ## Dependencies
 * python 3
 * python opencv2
 * np
+(A conda environment definition is included in environment.yml for convenience).
 
 ## Running the camera
 1. Install the dependencies
 ```
-pip install opencv-python python-dotenv numpy np
+conda env create -f environment.yml 
 ```
 2. Make any desired changes to the default config file
-  * save_interval: the interval at which to save a snapshot of the security camera feed (in minutes).
-  * log_dir: the directory in which the snapshots (and any motion-detected video) will be saved. This directory will be created if it does not already exist.
 3. Run the program
 ```
 python3 security_camera.py
@@ -25,9 +26,11 @@ python3 security_camera.py
 ## TODO
  - [x] Allow the image save interval to be parameterized
  - [X] Auto-detect available webcams
- - [x] Allow '~' or bash variables to be used in the SECURITY_CAMERA_LOG_DIR environment variable instead of requiring the full path.
+ - [x] Allow '~' or bash variables to be used in the log_dir config instead of requiring the full path.
  - [X] Improve motion detection
  - [ ] Allow options to send images/videos via email, or save to AWS S3
- - [ ] General code clean-up (abstract logical blocks into functions, add docstrings, etc)
- - [ ] Add unit tests
+ - [ ] General code clean-up:
+  - [X] abstract logical blocks into functions
+  - [ ] add docstrings
+ - [X] Add unit tests
 
